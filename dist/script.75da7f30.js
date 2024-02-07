@@ -140,8 +140,29 @@ var _addGlobalEventListener = _interopRequireDefault(require("./utils/addGlobalE
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function setupDragAndDrop() {
   (0, _addGlobalEventListener.default)('mousedown', '[data-draggable]', function (e) {
-    console.log("mouse is down");
+    var selectedItem = e.target;
+    var itemClone = selectedItem.cloneNode(true);
+    itemClone.classList.add('dragging');
+    positionClone(itemClone, e);
+    document.body.append(itemClone);
+    selectedItem.classList.add("hide");
+    var mouseMoveFunction = function mouseMoveFunction(e) {
+      positionClone(itemClone, e);
+    };
+    document.addEventListener("mousemove", mouseMoveFunction);
+    document.addEventListener("mouseup", function () {
+      document.removeEventListener("mousemove", mouseMoveFunction);
+      selectedItem.classList.remove("hide");
+      itemClone.remove();
+      console.log("up");
+    }, {
+      once: true
+    });
   });
+}
+function positionClone(itemClone, mousePosition) {
+  itemClone.style.top = "".concat(mousePosition.clientY, "px");
+  itemClone.style.left = "".concat(mousePosition.clientX, "px");
 }
 },{"./utils/addGlobalEventListener.js":"utils/addGlobalEventListener.js"}],"script.js":[function(require,module,exports) {
 "use strict";
@@ -174,7 +195,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64715" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49876" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
