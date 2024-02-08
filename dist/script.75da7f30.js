@@ -142,28 +142,42 @@ function setupDragAndDrop() {
   (0, _addGlobalEventListener.default)('mousedown', '[data-draggable]', function (e) {
     var selectedItem = e.target;
     var itemClone = selectedItem.cloneNode(true);
-    itemClone.classList.add('dragging');
-    positionClone(itemClone, e);
-    document.body.append(itemClone);
-    selectedItem.classList.add("hide");
-    var mouseMoveFunction = function mouseMoveFunction(e) {
-      positionClone(itemClone, e);
-    };
-    document.addEventListener("mousemove", mouseMoveFunction);
-    document.addEventListener("mouseup", function () {
-      document.removeEventListener("mousemove", mouseMoveFunction);
-      selectedItem.classList.remove("hide");
-      itemClone.remove();
-      console.log("up");
-    }, {
-      once: true
-    });
+    var offset = setupDragItems(selectedItem, itemClone, e);
+    setupDragEvents(selectedItem, itemClone, offset);
   });
 }
-function positionClone(itemClone, mousePosition) {
-  itemClone.style.top = "".concat(mousePosition.clientY, "px");
-  itemClone.style.left = "".concat(mousePosition.clientX, "px");
+function setupDragItems(selectedItem, itemClone, e) {
+  var originalRect = selectedItem.getBoundingClientRect();
+  var offset = {
+    x: e.clientX - originalRect.left,
+    y: e.clientY - originalRect.top
+  };
+  selectedItem.classList.add("hide");
+  itemClone.style.width = "".concat(originalRect.width, "px");
+  itemClone.classList.add('dragging');
+  positionClone(itemClone, e, offset);
+  document.body.append(itemClone);
+  return offset;
 }
+function setupDragEvents(selectedItem, itemClone, offset) {
+  var mouseMoveFunction = function mouseMoveFunction(e) {
+    positionClone(itemClone, e, offset);
+  };
+  document.addEventListener("mousemove", mouseMoveFunction);
+  document.addEventListener("mouseup", function () {
+    document.removeEventListener("mousemove", mouseMoveFunction);
+    selectedItem.classList.remove("hide");
+    itemClone.remove();
+  }, {
+    once: true
+  });
+}
+function positionClone(itemClone, mousePosition, offset) {
+  itemClone.style.top = "".concat(mousePosition.clientY - offset.y, "px");
+  itemClone.style.left = "".concat(mousePosition.clientX - offset.x, "px");
+}
+
+// 28:57
 },{"./utils/addGlobalEventListener.js":"utils/addGlobalEventListener.js"}],"script.js":[function(require,module,exports) {
 "use strict";
 
@@ -195,7 +209,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49876" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53788" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
