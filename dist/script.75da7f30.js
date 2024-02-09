@@ -135,18 +135,19 @@ function addGlobalEventListener(type, selector, callback) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = setupDragAndDrop;
+exports.default = setup;
 var _addGlobalEventListener = _interopRequireDefault(require("./utils/addGlobalEventListener.js"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-function setupDragAndDrop() {
+function setup() {
   (0, _addGlobalEventListener.default)('mousedown', '[data-draggable]', function (e) {
     var selectedItem = e.target;
     var itemClone = selectedItem.cloneNode(true);
-    var offset = setupDragItems(selectedItem, itemClone, e);
-    setupDragEvents(selectedItem, itemClone, offset);
+    var ghost = selectedItem.cloneNode();
+    var offset = setupDragItems(selectedItem, itemClone, ghost, e);
+    setupDragEvents(selectedItem, itemClone, ghost, offset);
   });
 }
-function setupDragItems(selectedItem, itemClone, e) {
+function setupDragItems(selectedItem, itemClone, ghost, e) {
   var originalRect = selectedItem.getBoundingClientRect();
   var offset = {
     x: e.clientX - originalRect.left,
@@ -157,17 +158,23 @@ function setupDragItems(selectedItem, itemClone, e) {
   itemClone.classList.add('dragging');
   positionClone(itemClone, e, offset);
   document.body.append(itemClone);
+  ghost.style.height = "".concat(originalRect.height, "px");
+  ghost.classList.add('ghost');
+  ghost.innerHTML = '';
+  selectedItem.parentElement.insertBefore(ghost, selectedItem);
   return offset;
 }
-function setupDragEvents(selectedItem, itemClone, offset) {
+function setupDragEvents(selectedItem, itemClone, ghost, offset) {
   var mouseMoveFunction = function mouseMoveFunction(e) {
+    var dropZone = getDropZone(e.target);
     positionClone(itemClone, e, offset);
+    if (dropZone == null) return;
+    dropZone.append(ghost);
   };
   document.addEventListener("mousemove", mouseMoveFunction);
   document.addEventListener("mouseup", function () {
     document.removeEventListener("mousemove", mouseMoveFunction);
-    selectedItem.classList.remove("hide");
-    itemClone.remove();
+    stopDrag(selectedItem, itemClone, ghost);
   }, {
     once: true
   });
@@ -176,8 +183,18 @@ function positionClone(itemClone, mousePosition, offset) {
   itemClone.style.top = "".concat(mousePosition.clientY - offset.y, "px");
   itemClone.style.left = "".concat(mousePosition.clientX - offset.x, "px");
 }
-
-// 28:57
+function stopDrag(selectedItem, itemClone, ghost) {
+  selectedItem.classList.remove("hide");
+  itemClone.remove();
+  ghost.remove();
+}
+function getDropZone(element) {
+  if (element.matches('[data-drop-zone]')) {
+    return element;
+  } else {
+    return element.closest("[data-drop-zone]");
+  }
+}
 },{"./utils/addGlobalEventListener.js":"utils/addGlobalEventListener.js"}],"script.js":[function(require,module,exports) {
 "use strict";
 
@@ -209,7 +226,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53788" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56066" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -1,17 +1,18 @@
 import addGlobalEventListener from "./utils/addGlobalEventListener.js"
 
-export default function setupDragAndDrop(){
+export default function setup(){
 
     addGlobalEventListener('mousedown', '[data-draggable]', e => {
         const selectedItem = e.target
         const itemClone = selectedItem.cloneNode(true)
-        const offset = setupDragItems(selectedItem, itemClone,e)
-        setupDragEvents(selectedItem, itemClone, offset)
+        const ghost = selectedItem.cloneNode()
+        const offset = setupDragItems(selectedItem, itemClone,ghost,e)
+        setupDragEvents(selectedItem, itemClone,ghost, offset)
 
     })
 }
 
-function setupDragItems(selectedItem, itemClone, e){
+function setupDragItems(selectedItem, itemClone, ghost, e){
     const originalRect = selectedItem.getBoundingClientRect()
     const offset = {
         x: e.clientX - originalRect.left,
@@ -25,19 +26,27 @@ function setupDragItems(selectedItem, itemClone, e){
     positionClone(itemClone,e, offset)
     document.body.append(itemClone)
 
+    ghost.style.height = `${originalRect.height}px`
+    ghost.classList.add('ghost')
+    ghost.innerHTML = ''
+    selectedItem.parentElement.insertBefore(ghost,selectedItem)
+
     return offset
 }
 
-function setupDragEvents(selectedItem, itemClone, offset){
+function setupDragEvents(selectedItem, itemClone, ghost, offset){
     const mouseMoveFunction = e => {
+        const dropZone = getDropZone(e.target)
         positionClone(itemClone,e, offset)
+        if(dropZone == null) return
+        dropZone.append(ghost)
     }
 
     document.addEventListener("mousemove", mouseMoveFunction)
     document.addEventListener("mouseup", ()=>{
         document.removeEventListener("mousemove", mouseMoveFunction)
-        selectedItem.classList.remove("hide")
-        itemClone.remove()
+        stopDrag(selectedItem, itemClone, ghost)
+
     },{once:true})
 }
 
@@ -47,4 +56,18 @@ function positionClone(itemClone, mousePosition, offset){
 
 }
 
-// 28:57
+function stopDrag(selectedItem, itemClone, ghost){
+    selectedItem.classList.remove("hide")
+    itemClone.remove()
+    ghost.remove()
+}
+
+function getDropZone(element){
+    if(element.matches('[data-drop-zone]')){
+        return element
+    }else{
+        return element.closest("[data-drop-zone]")
+    }
+}
+
+//38:00

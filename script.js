@@ -1,3 +1,3 @@
-import setupDragAndDrop from "./dragAndDrop.js"
+import setup from "./dragAndDrop.js"
 
-setupDragAndDrop()
+setup()
