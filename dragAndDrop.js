@@ -1,13 +1,13 @@
 import addGlobalEventListener from "./utils/addGlobalEventListener.js"
 
-export default function setup(){
+export default function setupDragAndDrop(onDragComplete){
 
     addGlobalEventListener('mousedown', '[data-draggable]', e => {
         const selectedItem = e.target
         const itemClone = selectedItem.cloneNode(true)
         const ghost = selectedItem.cloneNode()
         const offset = setupDragItems(selectedItem, itemClone,ghost,e)
-        setupDragEvents(selectedItem, itemClone,ghost, offset)
+        setupDragEvents(selectedItem, itemClone,ghost, offset, onDragComplete)
 
     })
 }
@@ -34,17 +34,35 @@ function setupDragItems(selectedItem, itemClone, ghost, e){
     return offset
 }
 
-function setupDragEvents(selectedItem, itemClone, ghost, offset){
+function setupDragEvents(selectedItem, itemClone, ghost, offset, onDragComplete){
     const mouseMoveFunction = e => {
         const dropZone = getDropZone(e.target)
         positionClone(itemClone,e, offset)
         if(dropZone == null) return
-        dropZone.append(ghost)
+        const closestChild = Array.from(dropZone.children).find(child => {
+            const rect = child.getBoundingClientRect()
+            return e.clientY < rect.top + rect.height/2
+        })
+        if(closestChild != null){
+            dropZone.insertBefore(ghost,closestChild)
+        }else{
+            dropZone.append(ghost)
+        } 
     }
 
     document.addEventListener("mousemove", mouseMoveFunction)
     document.addEventListener("mouseup", ()=>{
         document.removeEventListener("mousemove", mouseMoveFunction)
+        const dropZone = getDropZone(ghost)
+        if(dropZone){
+            dropZone.insertBefore(selectedItem,ghost)
+            onDragComplete({
+                startZone: getDropZone(selectedItem),
+                endZone: dropZone,
+                dragElement: selectedItem,
+                index: Array.from(dropZone.children).indexOf(ghost)
+            })
+        }
         stopDrag(selectedItem, itemClone, ghost)
 
     },{once:true})
