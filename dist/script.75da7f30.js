@@ -138,8 +138,103 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = setupDragAndDrop;
 var _addGlobalEventListener = _interopRequireDefault(require("./utils/addGlobalEventListener.js"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+/*
+import addGlobalEventListener from "./utils/addGlobalEventListener.js"
+
+export default function setupDragAndDrop(onDragComplete){
+
+    addGlobalEventListener('mousedown', '[data-draggable]', e => {
+        const selectedItem = e.target
+        const itemClone = selectedItem.cloneNode(true)
+        const ghost = selectedItem.cloneNode()
+        const offset = setupDragItems(selectedItem, itemClone,ghost,e)
+        setupDragEvents(selectedItem, itemClone,ghost, offset, onDragComplete)
+
+    })
+}
+
+function setupDragItems(selectedItem, itemClone, ghost, e){
+    const originalRect = selectedItem.getBoundingClientRect()
+    const offset = {
+        x: e.clientX - originalRect.left,
+        y: e.clientY - originalRect.top
+    }
+
+    selectedItem.classList.add("hide")
+
+    itemClone.style.width = `${originalRect.width}px`
+    itemClone.classList.add('dragging')
+    positionClone(itemClone,e, offset)
+    document.body.append(itemClone)
+
+    ghost.style.height = `${originalRect.height}px`
+    ghost.classList.add('ghost')
+    ghost.innerHTML = ''
+    selectedItem.parentElement.insertBefore(ghost,selectedItem)
+
+    return offset
+}
+
+function setupDragEvents(selectedItem, itemClone, ghost, offset, onDragComplete){
+    const mouseMoveFunction = e => {
+        const dropZone = getDropZone(e.target)
+        positionClone(itemClone,e, offset)
+        if(dropZone == null) return
+        const closestChild = Array.from(dropZone.children).find(child => {
+            const rect = child.getBoundingClientRect()
+            return e.clientY < rect.top + rect.height/2
+        })
+        if(closestChild != null){
+            dropZone.insertBefore(ghost,closestChild)
+        }else{
+            dropZone.append(ghost)
+        } 
+    }
+
+    document.addEventListener("mousemove", mouseMoveFunction)
+    document.addEventListener("mouseup", ()=>{
+        document.removeEventListener("mousemove", mouseMoveFunction)
+        const dropZone = getDropZone(ghost)
+        if(dropZone){
+            //dropZone.insertBefore(selectedItem,ghost)
+            onDragComplete({
+                startZone: getDropZone(selectedItem),
+                endZone: dropZone,
+                dragElement: selectedItem,
+                index: Array.from(dropZone.children).indexOf(ghost)
+            })
+            dropZone.insertBefore(selectedItem,ghost)
+
+        }
+        stopDrag(selectedItem, itemClone, ghost)
+
+    },{once:true})
+}
+
+function positionClone(itemClone, mousePosition, offset){
+    itemClone.style.top = `${mousePosition.clientY - offset.y}px`
+    itemClone.style.left = `${mousePosition.clientX - offset.x}px`
+
+}
+
+function stopDrag(selectedItem, itemClone, ghost){
+    selectedItem.classList.remove("hide")
+    itemClone.remove()
+    ghost.remove()
+}
+
+function getDropZone(element){
+    if(element.matches('[data-drop-zone]')){
+        return element
+    }else{
+        return element.closest("[data-drop-zone]")
+    }
+}
+
+*/
+
 function setupDragAndDrop(onDragComplete) {
-  (0, _addGlobalEventListener.default)('mousedown', '[data-draggable]', function (e) {
+  (0, _addGlobalEventListener.default)("mousedown", "[data-draggable]", function (e) {
     var selectedItem = e.target;
     var itemClone = selectedItem.cloneNode(true);
     var ghost = selectedItem.cloneNode();
@@ -155,12 +250,12 @@ function setupDragItems(selectedItem, itemClone, ghost, e) {
   };
   selectedItem.classList.add("hide");
   itemClone.style.width = "".concat(originalRect.width, "px");
-  itemClone.classList.add('dragging');
+  itemClone.classList.add("dragging");
   positionClone(itemClone, e, offset);
   document.body.append(itemClone);
   ghost.style.height = "".concat(originalRect.height, "px");
-  ghost.classList.add('ghost');
-  ghost.innerHTML = '';
+  ghost.classList.add("ghost");
+  ghost.innerHTML = "";
   selectedItem.parentElement.insertBefore(ghost, selectedItem);
   return offset;
 }
@@ -184,13 +279,13 @@ function setupDragEvents(selectedItem, itemClone, ghost, offset, onDragComplete)
     document.removeEventListener("mousemove", mouseMoveFunction);
     var dropZone = getDropZone(ghost);
     if (dropZone) {
-      dropZone.insertBefore(selectedItem, ghost);
       onDragComplete({
         startZone: getDropZone(selectedItem),
         endZone: dropZone,
         dragElement: selectedItem,
         index: Array.from(dropZone.children).indexOf(ghost)
       });
+      dropZone.insertBefore(selectedItem, ghost);
     }
     stopDrag(selectedItem, itemClone, ghost);
   }, {
@@ -207,14 +302,12 @@ function stopDrag(selectedItem, itemClone, ghost) {
   ghost.remove();
 }
 function getDropZone(element) {
-  if (element.matches('[data-drop-zone]')) {
+  if (element.matches("[data-drop-zone]")) {
     return element;
   } else {
     return element.closest("[data-drop-zone]");
   }
 }
-
-//38:00
 },{"./utils/addGlobalEventListener.js":"utils/addGlobalEventListener.js"}],"node_modules/uuid/dist/esm-browser/rng.js":[function(require,module,exports) {
 "use strict";
 
@@ -938,29 +1031,141 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 },{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js","./nil.js":"node_modules/uuid/dist/esm-browser/nil.js","./version.js":"node_modules/uuid/dist/esm-browser/version.js","./validate.js":"node_modules/uuid/dist/esm-browser/validate.js","./stringify.js":"node_modules/uuid/dist/esm-browser/stringify.js","./parse.js":"node_modules/uuid/dist/esm-browser/parse.js"}],"script.js":[function(require,module,exports) {
 "use strict";
 
+var _addGlobalEventListener = _interopRequireDefault(require("./utils/addGlobalEventListener.js"));
 var _dragAndDrop = _interopRequireDefault(require("./dragAndDrop.js"));
 var _uuid = require("uuid");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-var STORAGE_PREFIX = 'TRELLO_CLONE';
+/*
+import addGlobalEventListener from "./utils/addGlobalEventListener.js"
+
+
+import setupDragAndDrop from "./dragAndDrop.js"
+import { v4 as uuidV4} from 'uuid'
+
+const STORAGE_PREFIX = 'TRELLO_CLONE'
+const LANES_STORAGE_KEY = `${STORAGE_PREFIX}-lanes`
+const DEFAULT_LANES = {
+    backlog: [{id: uuidV4(),text: "Create your first task!"}],
+    doing: [],
+    done: []
+}
+const lanes = loadLanes()
+renderTasks()
+
+setupDragAndDrop(onDragComplete)
+
+addGlobalEventListener('submit', '[data-task-form]', e => {
+    e.preventDefault()
+
+    const taskInput = e.target.querySelector("[data-task-input")
+    const taskText = taskInput.value
+
+    if(taskText === '') return
+
+    const task = {id: uuidV4(), text: taskText}
+    const laneElement = e.target.closest('.lane').querySelector("[data-lane-id]")
+    lanes[laneElement.dataset.laneId].push(task)
+
+    const taskElement = createTaskElement(task)
+    laneElement.append(taskElement)
+    taskInput.value = ""
+    saveLanes()
+})
+
+function onDragComplete(e){
+    const startLaneId = e.startZone.dataset.laneId
+    const endLaneId = e.endZone.dataset.laneId
+    const startLaneTasks = lanes[startLaneId]
+    const endLaneTasks = lanes[endLaneId]
+
+    const task = startLaneTasks.find(t => t.id === e.dragElement.id)
+    startLaneTasks.splice(startLaneTasks.indexOf(task), 1)
+    endLaneTasks.splice(e.index, 0, task)
+    //console.log(lanes)
+    saveLanes()
+
+}
+
+
+function loadLanes(){
+    const lanesJson = localStorage.getItem(LANES_STORAGE_KEY)
+    return JSON.parse(lanesJson) || DEFAULT_LANES
+}
+
+function saveLanes(){
+    localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes))
+}
+
+function renderTasks(){
+    Object.entries(lanes).forEach(obj => {
+        const laneId = obj[0]
+        const tasks = obj[1]
+        const lane = document.querySelector(`[data-lane-id="${laneId}"]`)
+        tasks.forEach(task =>{
+            const taskElement = createTaskElement(task)
+            lane.append(taskElement)
+        })
+    })
+}
+
+function createTaskElement(task){
+    const element = document.createElement('div')
+    element.id = task.id
+    element.innerText = task.text
+    element.classList.add('task')
+    element.dataset.draggable = true
+    return element
+}
+
+*/
+
+var STORAGE_PREFIX = "TRELLO_CLONE";
 var LANES_STORAGE_KEY = "".concat(STORAGE_PREFIX, "-lanes");
 var DEFAULT_LANES = {
   backlog: [{
-    id: _uuid.v4,
-    text: "Create your first task!"
+    id: (0, _uuid.v4)(),
+    text: "Create your first task"
   }],
   doing: [],
   done: []
 };
 var lanes = loadLanes();
 renderTasks();
-console.log(lanes);
 (0, _dragAndDrop.default)(onDragComplete);
+(0, _addGlobalEventListener.default)("submit", "[data-task-form]", function (e) {
+  e.preventDefault();
+  var taskInput = e.target.querySelector("[data-task-input]");
+  var taskText = taskInput.value;
+  if (taskText === "") return;
+  var task = {
+    id: (0, _uuid.v4)(),
+    text: taskText
+  };
+  var laneElement = e.target.closest(".lane").querySelector("[data-lane-id]");
+  lanes[laneElement.dataset.laneId].push(task);
+  var taskElement = createTaskElement(task);
+  laneElement.append(taskElement);
+  taskInput.value = "";
+  saveLanes();
+});
 function onDragComplete(e) {
-  console.log(e);
+  var startLaneId = e.startZone.dataset.laneId;
+  var endLaneId = e.endZone.dataset.laneId;
+  var startLaneTasks = lanes[startLaneId];
+  var endLaneTasks = lanes[endLaneId];
+  var task = startLaneTasks.find(function (t) {
+    return t.id === e.dragElement.id;
+  });
+  startLaneTasks.splice(startLaneTasks.indexOf(task), 1);
+  endLaneTasks.splice(e.index, 0, task);
+  saveLanes();
 }
 function loadLanes() {
   var lanesJson = localStorage.getItem(LANES_STORAGE_KEY);
   return JSON.parse(lanesJson) || DEFAULT_LANES;
+}
+function saveLanes() {
+  localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes));
 }
 function renderTasks() {
   Object.entries(lanes).forEach(function (obj) {
@@ -974,14 +1179,14 @@ function renderTasks() {
   });
 }
 function createTaskElement(task) {
-  var element = document.createElement('div');
+  var element = document.createElement("div");
   element.id = task.id;
   element.innerText = task.text;
-  element.classList.add('task');
+  element.classList.add("task");
   element.dataset.draggable = true;
   return element;
 }
-},{"./dragAndDrop.js":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./utils/addGlobalEventListener.js":"utils/addGlobalEventListener.js","./dragAndDrop.js":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -1006,7 +1211,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59752" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50705" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
